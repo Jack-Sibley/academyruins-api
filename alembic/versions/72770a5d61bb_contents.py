@@ -34,7 +34,7 @@ def upgrade() -> None:
         sa.Column('parent_cr_id', sa.Integer(), nullable=False),
         sa.Column('data', sa.JSON(), nullable=False),
         sa.PrimaryKeyConstraint('id'),
-        sa.ForeignKeyConstraint(['parent_cr_id'], ['cr.id']),
+        sa.ForeignKeyConstraint(['parent_cr_id'], ['cr_pending.id']),
     )
     # ### end Alembic commands ###
 
