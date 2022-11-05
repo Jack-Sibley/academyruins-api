@@ -12,6 +12,7 @@ ability_words_rule = "207.2c"
 # parse plaintext CR into structured representations
 # lifted directly from an old VensersJournal file, should be cleaned up at some point
 async def extract(comp_rules):
+    contents_json = {}
     rules_json = {}
     rules_flattened = {}
     glossary_json, examples_json = {}, []
@@ -20,6 +21,19 @@ async def extract(comp_rules):
         splitter = re.compile(r", (?:and )?")
         list_str = re.findall(r"The ability words are (.*)", rules_text)[0]
         return splitter.split(list_str)
+
+    start_index = comp_rules.find("Contents")
+    end_index = comp_rules.find("Glossary")
+    contents = comp_rules[start_index+8:end_index].splitlines()
+
+    heading_no="0"
+    for line in contents:
+        if match := re.match(r"^(\d{1,3})\.\s*(.+)$", line):
+            if len(match.group(1)) != 3:
+                heading_no = match.group(1)
+                contents_json[heading_no] = {"heading": match.group(2), "subsections": {}}
+            else:
+                contents_json[heading_no]["subsections"][match.group(1)] = match.group(2)
 
     start_index = comp_rules.find("Glossary")
     comp_rules = comp_rules[start_index:]
@@ -124,6 +138,7 @@ async def extract(comp_rules):
         output.write(json.dumps(rules_json, indent=4))
 
     return {
+        "contents": contents_json,
         "rules": rules_flattened,
         "keywords": keywords,
         "glossary": glossary_json,

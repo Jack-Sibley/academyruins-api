@@ -4,7 +4,7 @@ from typing import Union, Tuple, Type
 from sqlalchemy import select
 from sqlalchemy.orm import Session, aliased
 
-from .models import Cr, Redirect, PendingRedirect, CrDiff, PendingCr, PendingCrDiff, Base
+from .models import Cr, Redirect, PendingRedirect, CrDiff, PendingCr, PendingCrDiff, Contents, PendingContents, Base
 
 
 def get_current_cr(db: Session):
@@ -63,6 +63,7 @@ def get_diff(db: Session, old_code: str, new_code: str) -> CrDiff:
 def apply_pending_cr_and_diff(db: Session, set_code: str, set_name: str) -> None:
     pendingCr: PendingCr = db.execute(select(PendingCr)).scalar_one()
     pendingDiff: PendingCrDiff = db.execute(select(PendingCrDiff)).scalar_one()
+    pendingContents: PendingContents = db.execute(select(PendingContents).where(PendingContents.parent_cr == pendingCr)).scalar_one()
     newCr = Cr(
         creation_day=pendingCr.creation_day,
         data=pendingCr.data,
@@ -76,13 +77,20 @@ def apply_pending_cr_and_diff(db: Session, set_code: str, set_name: str) -> None
         dest=newCr,
         changes=pendingDiff.changes,
     )
+    newContents = Contents(
+        creation_day=pendingContents.creation_day,
+        parent_cr=newCr,
+        data=pendingContents.data,
+    )
     db.add(newCr)
     db.add(newDiff)
+    db.add(newContents)
     db.delete(pendingCr)
     db.delete(pendingDiff)
+    db.delete(pendingContents)
 
 
-def get_latest_cr_diff_code(db: Session) -> (str, str):
+def get_latest_cr_diff_code(db: Session) -> Tuple[str, str]:
     stmt = select(CrDiff).join(CrDiff.dest).order_by(Cr.creation_day.desc())
     diff: CrDiff = db.execute(stmt).scalars().first()
     return diff.source.set_code, diff.dest.set_code
@@ -136,12 +144,14 @@ def get_doc_filename(db: Session, date: datetime.date, table: Type[Base]) -> str
     return db.execute(select(table.file_name).where(table.creation_day == date)).scalar_one_or_none()
 
 
-def set_pending_cr_and_diff(db: Session, new_rules: dict, new_diff: list, file_name: str):
+def set_pending_cr_and_diff(db: Session, new_rules: dict, new_diff: list, contents: dict, file_name: str):
     new_cr = PendingCr(creation_day=datetime.date.today(), data=new_rules, file_name=file_name)
     curr_cr_id: Cr = db.execute(select(Cr.id).order_by(Cr.creation_day.desc())).scalars().first()
     new_diff = PendingCrDiff(creation_day=datetime.date.today(), source_id=curr_cr_id, dest=new_cr, changes=new_diff)
+    new_contents = PendingContents(creation_day=datetime.date.today(), parent_cr=new_cr, data=contents)
     db.add(new_cr)
     db.add(new_diff)
+    db.add(new_contents)
 
 
 def upload_doc(db: Session, file_name: str, kind: Type[Base]):
