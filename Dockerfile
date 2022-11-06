@@ -1,5 +1,10 @@
 FROM python:3.10
 
+WORKDIR /app/resources/generated/
+RUN apk add --no-cache sqlite~=3.31
+RUN echo ';' | sqlite3 -batch jobs.sqlite
+WORKDIR /
+
 # Configure Poetry
 ENV POETRY_VERSION=1.2.1
 ENV POETRY_HOME=/opt/poetry
@@ -19,6 +24,8 @@ WORKDIR /code
 # Install dependencies
 COPY poetry.lock pyproject.toml ./
 RUN poetry install --no-interaction --no-cache --without dev
+
+
 
 
 # Run app
