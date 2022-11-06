@@ -85,7 +85,6 @@ class Contents(Base):
     __tablename__ = "contents"
 
     id = Column(Integer, primary_key=True)
-    creation_day = Column(Date, nullable=False)
     parent_cr_id = Column(ForeignKey("cr.id"), nullable=False)
     data = Column(JSONB(astext_type=Text()))
 
@@ -95,7 +94,6 @@ class PendingContents(Base):
     __tablename__ = "contents_pending"
 
     id = Column(Integer, primary_key=True)
-    creation_day = Column(Date, nullable=False)
     parent_cr_id = Column(ForeignKey("cr_pending.id"), nullable=False)
     data = Column(JSONB(astext_type=Text()), nullable=False)
 

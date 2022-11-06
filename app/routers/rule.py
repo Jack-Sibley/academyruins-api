@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from ..database import operations as ops
 from ..database.db import get_db
 from ..parsing.keyword_def import get_best_rule
-from ..utils.models import Rule, Error, Example, KeywordDict, FullRule
+from ..utils.models import Rule, Error, Example, KeywordDict, FullRule, ContentsHeading
 from ..resources import static_paths as paths
 from ..utils.remove422 import no422
 
@@ -109,3 +109,12 @@ def get_keywords():
     kept in their natural case, ability words are all lower-cased.
     """
     return FileResponse(paths.keyword_dict)
+
+@router.get("/contents", summary="Table of Contents", response_model=dict[str, ContentsHeading])
+def get_contents(db: Session = Depends(get_db)):
+    """
+    Get a dictionary of all headings in the table of contents, keyed by their section number. 
+    
+    Each value contains the heading's text, as well a dict of subheadings, keyed by their section number.
+    """
+    return ops.get_current_contents(db)

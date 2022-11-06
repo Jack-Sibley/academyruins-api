@@ -21,7 +21,6 @@ def upgrade() -> None:
     op.create_table(
         'contents',
         sa.Column('id', sa.Integer(), nullable=False),
-        sa.Column('creation_day', sa.Date(), nullable=False),
         sa.Column('parent_cr_id', sa.Integer(), nullable=False),
         sa.Column('data', sa.JSON(), nullable=False),
         sa.PrimaryKeyConstraint('id'),
@@ -30,7 +29,6 @@ def upgrade() -> None:
     op.create_table(
         'contents_pending',
         sa.Column('id', sa.Integer(), nullable=False),
-        sa.Column('creation_day', sa.Date(), nullable=False),
         sa.Column('parent_cr_id', sa.Integer(), nullable=False),
         sa.Column('data', sa.JSON(), nullable=False),
         sa.PrimaryKeyConstraint('id'),

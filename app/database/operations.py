@@ -78,7 +78,6 @@ def apply_pending_cr_and_diff(db: Session, set_code: str, set_name: str) -> None
         changes=pendingDiff.changes,
     )
     newContents = Contents(
-        creation_day=pendingContents.creation_day,
         parent_cr=newCr,
         data=pendingContents.data,
     )
@@ -148,7 +147,7 @@ def set_pending_cr_and_diff(db: Session, new_rules: dict, new_diff: list, conten
     new_cr = PendingCr(creation_day=datetime.date.today(), data=new_rules, file_name=file_name)
     curr_cr_id: Cr = db.execute(select(Cr.id).order_by(Cr.creation_day.desc())).scalars().first()
     new_diff = PendingCrDiff(creation_day=datetime.date.today(), source_id=curr_cr_id, dest=new_cr, changes=new_diff)
-    new_contents = PendingContents(creation_day=datetime.date.today(), parent_cr=new_cr, data=contents)
+    new_contents = PendingContents(parent_cr=new_cr, data=contents)
     db.add(new_cr)
     db.add(new_diff)
     db.add(new_contents)
@@ -157,3 +156,7 @@ def set_pending_cr_and_diff(db: Session, new_rules: dict, new_diff: list, conten
 def upload_doc(db: Session, file_name: str, kind: Type[Base]):
     new_doc = kind(creation_day=datetime.date.today(), file_name=file_name)
     db.add(new_doc)
+
+def get_current_contents(db: Session):
+    stmt = select(Contents.data).join(Cr).order_by(Cr.creation_day.desc())
+    return db.execute(stmt).scalars().first()
