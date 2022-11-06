@@ -1,6 +1,7 @@
 FROM python:3.10
 
 WORKDIR /app/resources/generated/
+RUN apk update && apk upgrade
 RUN apk add --no-cache sqlite~=3.31
 RUN echo ';' | sqlite3 -batch jobs.sqlite
 WORKDIR /
