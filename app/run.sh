@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+echo "Starting the application..."
+echo "$PWD"
 set -eo pipefail
 
 # ensure app\resources\generated and app\static\raw_docs\ are present
