@@ -39,4 +39,4 @@ COPY ./app /code/app
 
 RUN chmod +x /code/app/run.sh
 ENTRYPOINT ["/usr/bin/tini", "--"]
-CMD ["./run.sh"]
+CMD ["/code/app/run.sh"]
