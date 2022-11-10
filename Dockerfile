@@ -1,10 +1,18 @@
 FROM python:3.10
 
-WORKDIR /app/resources/generated/
-RUN apk update && apk upgrade
-RUN apk add --no-cache sqlite~=3.31
-RUN echo ';' | sqlite3 -batch jobs.sqlite
-WORKDIR /
+RUN set -e; \
+    apt-get update -y && apt-get install -y \
+    tini \
+    lsb-release; \
+    gcsFuseRepo=gcsfuse-`lsb_release -c -s`; \
+    echo "deb http://packages.cloud.google.com/apt $gcsFuseRepo main" | \
+    tee /etc/apt/sources.list.d/gcsfuse.list; \
+    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | \
+    apt-key add -; \
+    apt-get update; \
+    apt-get install -y gcsfuse \
+    && apt-get clean
+
 
 # Configure Poetry
 ENV POETRY_VERSION=1.2.1
@@ -26,9 +34,9 @@ WORKDIR /code
 COPY poetry.lock pyproject.toml ./
 RUN poetry install --no-interaction --no-cache --without dev
 
-
-
-
 # Run app
 COPY ./app /code/app
-CMD ["poetry", "run", "uvicorn", "app.main:app", "--proxy-headers", "--host", "0.0.0.0", "--port", "80"]
+
+RUN chmod +x /code/app/run.sh
+ENTRYPOINT ["/usr/bin/tini", "--"]
+CMD ["./run.sh"]
