@@ -76,6 +76,11 @@ class PendingCRDiff(BaseModel):
 class PendingCRDiffResponse(BaseModel):
     data: PendingCRDiff
 
-class ContentsHeading(BaseModel):
+class ContentsSubsection(BaseModel):
+    sectionNumber: str
     heading: str
-    subsections: dict[str, str]
+
+class ContentsHeading(BaseModel):
+    sectionNumber: str
+    heading: str
+    subsections: dict[str, ContentsSubsection]

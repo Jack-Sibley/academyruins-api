@@ -31,9 +31,9 @@ async def extract(comp_rules):
         if match := re.match(r"^(\d{1,3})\.\s*(.+)$", line):
             if len(match.group(1)) != 3:
                 heading_no = match.group(1)
-                contents_json[heading_no] = {"heading": match.group(2), "subsections": {}}
+                contents_json[heading_no] = {"heading": match.group(2), "sectionNumber": heading_no, "subsections": {}}
             else:
-                contents_json[heading_no]["subsections"][match.group(1)] = match.group(2)
+                contents_json[heading_no]["subsections"][match.group(1)] = {"sectionNumber": match.group(1), "heading": match.group(2)}
 
     start_index = comp_rules.find("Glossary")
     comp_rules = comp_rules[start_index:]
