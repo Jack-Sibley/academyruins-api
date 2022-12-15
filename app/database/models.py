@@ -81,6 +81,7 @@ class PendingCrDiff(Base):
     dest = relationship("PendingCr")
     source = relationship("Cr")
 
+
 class Contents(Base):
     __tablename__ = "contents"
 
@@ -89,6 +90,7 @@ class Contents(Base):
     data = Column(JSONB(astext_type=Text()))
 
     parent_cr = relationship("Cr", primaryjoin="Contents.parent_cr_id == Cr.id")
+
 
 class PendingContents(Base):
     __tablename__ = "contents_pending"

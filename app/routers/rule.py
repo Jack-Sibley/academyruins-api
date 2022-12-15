@@ -110,11 +110,12 @@ def get_keywords():
     """
     return FileResponse(paths.keyword_dict)
 
+
 @router.get("/contents", summary="Table of Contents", response_model=dict[str, ContentsHeading])
 def get_contents(db: Session = Depends(get_db)):
     """
-    Get a dictionary of all headings in the table of contents, keyed by their section number. 
-    
+    Get a dictionary of all headings in the table of contents, keyed by their section number.
+
     Each value contains the heading's text, as well a dict of subheadings, keyed by their section number.
     """
     return ops.get_current_contents(db)

@@ -24,16 +24,19 @@ async def extract(comp_rules):
 
     start_index = comp_rules.find("Contents")
     end_index = comp_rules.find("Glossary")
-    contents = comp_rules[start_index+8:end_index].splitlines()
+    contents = comp_rules[start_index + 8 : end_index].splitlines()
 
-    heading_no="0"
+    heading_no = "0"
     for line in contents:
         if match := re.match(r"^(\d{1,3})\.\s*(.+)$", line):
             if len(match.group(1)) != 3:
                 heading_no = match.group(1)
                 contents_json[heading_no] = {"heading": match.group(2), "sectionNumber": heading_no, "subsections": {}}
             else:
-                contents_json[heading_no]["subsections"][match.group(1)] = {"sectionNumber": match.group(1), "heading": match.group(2)}
+                contents_json[heading_no]["subsections"][match.group(1)] = {
+                    "sectionNumber": match.group(1),
+                    "heading": match.group(2),
+                }
 
     start_index = comp_rules.find("Glossary")
     comp_rules = comp_rules[start_index:]

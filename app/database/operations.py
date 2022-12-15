@@ -63,7 +63,9 @@ def get_diff(db: Session, old_code: str, new_code: str) -> CrDiff:
 def apply_pending_cr_and_diff(db: Session, set_code: str, set_name: str) -> None:
     pendingCr: PendingCr = db.execute(select(PendingCr)).scalar_one()
     pendingDiff: PendingCrDiff = db.execute(select(PendingCrDiff)).scalar_one()
-    pendingContents: PendingContents = db.execute(select(PendingContents).where(PendingContents.parent_cr == pendingCr)).scalar_one()
+    pendingContents: PendingContents = db.execute(
+        select(PendingContents).where(PendingContents.parent_cr == pendingCr)
+    ).scalar_one()
     newCr = Cr(
         creation_day=pendingCr.creation_day,
         data=pendingCr.data,
@@ -156,6 +158,7 @@ def set_pending_cr_and_diff(db: Session, new_rules: dict, new_diff: list, conten
 def upload_doc(db: Session, file_name: str, kind: Type[Base]):
     new_doc = kind(creation_day=datetime.date.today(), file_name=file_name)
     db.add(new_doc)
+
 
 def get_current_contents(db: Session):
     stmt = select(Contents.data).join(Cr).order_by(Cr.creation_day.desc())

@@ -76,9 +76,11 @@ class PendingCRDiff(BaseModel):
 class PendingCRDiffResponse(BaseModel):
     data: PendingCRDiff
 
+
 class ContentsSubsection(BaseModel):
     sectionNumber: str
     heading: str
+
 
 class ContentsHeading(BaseModel):
     sectionNumber: str
